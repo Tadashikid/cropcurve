@@ -1,0 +1,12 @@
+# Backend (no PyTorch needed: the model runs through onnxruntime)
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+httpx>=0.27
+pillow>=10.0
+numpy>=1.26
+onnxruntime>=1.17
+python-dotenv>=1.0
+pydantic>=2.5
+# tests
+pytest>=8.0

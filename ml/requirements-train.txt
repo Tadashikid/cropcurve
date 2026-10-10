@@ -1,0 +1,7 @@
+# Training (Colab/Kaggle already have torch + torchvision; install the rest)
+torch>=2.1
+torchvision>=0.16
+pillow>=10.0
+numpy>=1.26
+onnx>=1.15
+onnxruntime>=1.17

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CropCurve: know what's on the leaf, and when to act</title>
+  <meta name="description" content="Photograph a leaf. CropCurve identifies the disease, checks your weather forecast, and shows the last good day to treat it.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 26C6 13 15 6 27 5c-1 12-8 21-21 21z' fill='%2324452F'/><path d='M7 25L21 11' stroke='%23F5F1E8' stroke-width='1.5'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="wordmark" href="/" aria-label="CropCurve home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26C6 13 15 6 27 5c-1 12-8 21-21 21z"/><path class="vein" d="M7 25L21 11"/></svg>
+      CropCurve
+    </a>
+    <nav class="nav" aria-label="Page sections">
+      <a href="#how">How it works</a>
+      <a href="#crops">What it recognises</a>
+    </nav>
+  </header>
+
+  <p class="demo-note" id="demo-note" hidden>
+    Prototype running without a trained model. The diagnosis is guessed from the file name;
+    the forecast and advice are real.
+  </p>
+
+  <main>
+    <!-- Upload ------------------------------------------------------------ -->
+    <section class="intro" id="check" aria-labelledby="intro-title">
+      <div class="intro-main">
+        <h1 id="intro-title">Photograph one leaf. Find out what’s wrong, and the day to act on it.</h1>
+        <p class="lede">CropCurve recognises <span id="count-conditions">38</span> conditions across
+          <span id="count-crops">14</span> crops, then reads your local forecast to show how fast the
+          disease will spread and the last good day to treat it.</p>
+
+        <form id="check-form" novalidate>
+          <div class="upload" id="upload">
+            <input type="file" id="photo" accept="image/*" aria-describedby="upload-hint">
+            <div class="upload-empty" id="upload-empty">
+              <p class="upload-title">Drop a photo of a single leaf here</p>
+              <p class="upload-hint" id="upload-hint">Close up, in daylight, with the leaf filling most of the frame.</p>
+              <label for="photo" class="btn btn-outline">Choose a photo</label>
+            </div>
+            <div class="upload-filled" id="upload-filled" hidden>
+              <img id="preview" alt="The leaf photo you chose">
+              <div class="upload-filled-text">
+                <p class="file-name" id="file-name"></p>
+                <p class="upload-hint">Ready to check.</p>
+                <label for="photo" class="link">Use a different photo</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="samples" id="samples" hidden>
+            <p>No photo to hand? Try a leaf from the reference set.</p>
+            <div class="sample-row" id="sample-row"></div>
+          </div>
+
+          <div class="details">
+            <div class="row">
+              <p class="row-label" id="extent-label">How much of the crop is affected?</p>
+              <div class="row-body">
+                <div class="segmented" role="radiogroup" aria-labelledby="extent-label">
+                  <label><input type="radio" name="extent" value="few" checked><span>A few spots</span></label>
+                  <label><input type="radio" name="extent" value="several"><span>Several leaves</span></label>
+                  <label><input type="radio" name="extent" value="widespread"><span>Most plants</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <p class="row-label" id="weather-label">Weather</p>
+              <div class="row-body">
+                <div class="segmented compact" role="radiogroup" aria-labelledby="weather-label">
+                  <label><input type="radio" name="wmode" value="auto" checked><span>Live forecast</span></label>
+                  <label><input type="radio" name="wmode" value="manual"><span>Set it myself</span></label>
+                </div>
+
+                <div class="weather-panel" id="panel-auto">
+                  <div class="place">
+                    <input type="text" id="city" autocomplete="address-level2" placeholder="Village or town, e.g. Nashik" aria-label="Village or town">
+                    <span class="or">or</span>
+                    <button type="button" class="link" id="locate">use my location</button>
+                  </div>
+                  <p class="hint" id="locate-status" aria-live="polite"></p>
+                </div>
+
+                <div class="weather-panel" id="panel-manual" hidden>
+                  <div class="presets" id="presets">
+                    <button type="button" data-t="18" data-h="92" data-r="8">Cool and rainy</button>
+                    <button type="button" data-t="25" data-h="88" data-r="4">Warm and humid</button>
+                    <button type="button" data-t="34" data-h="45" data-r="0">Hot and dry</button>
+                  </div>
+                  <label class="slider"><span>Temperature</span><input type="range" id="temp" min="5" max="45" value="26"><output id="temp-out">26 °C</output></label>
+                  <label class="slider"><span>Humidity</span><input type="range" id="humidity" min="20" max="100" value="75"><output id="hum-out">75%</output></label>
+                  <label class="slider"><span>Rain a day</span><input type="range" id="rain" min="0" max="40" value="0"><output id="rain-out">0 mm</output></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary" id="submit">Check this leaf</button>
+            <p class="fineprint">Your photo is only used for this check. It isn’t stored.</p>
+          </div>
+        </form>
+      </div>
+
+      <aside class="specimen" aria-label="Reference leaf">
+        <figure class="sheet" id="sheet">
+          <div class="mount">
+            <span class="tape tape-l" aria-hidden="true"></span>
+            <span class="tape tape-r" aria-hidden="true"></span>
+            <img id="specimen-img" alt="" hidden>
+            <svg class="specimen-drawing" id="specimen-drawing" viewBox="0 0 200 240" aria-hidden="true">
+              <path d="M100 228 C98 190 96 160 100 120" class="stem"/>
+              <path d="M100 124 C40 120 22 70 46 26 C80 30 130 44 150 80 C166 110 140 126 100 124 Z" class="blade"/>
+              <path d="M100 124 C90 96 78 66 52 34 M86 104 L60 98 M80 88 L58 72 M92 112 C110 104 128 98 144 88 M86 80 C100 74 116 66 128 58" class="veins"/>
+            </svg>
+          </div>
+          <figcaption class="label">
+            <p class="label-latin" id="specimen-latin">Folium</p>
+            <p class="label-name" id="specimen-name">Reference leaves appear here once the model is trained.</p>
+            <p class="label-note" id="specimen-note">From the training set</p>
+            <button type="button" class="link" id="specimen-use" hidden>Try this leaf</button>
+          </figcaption>
+        </figure>
+      </aside>
+    </section>
+
+    <!-- Results ----------------------------------------------------------- -->
+    <section class="results" id="results" aria-live="polite" hidden>
+      <aside class="evidence">
+        <figure class="photo-frame">
+          <img id="result-photo" alt="The leaf you checked">
+          <figcaption>Your photo</figcaption>
+        </figure>
+
+        <div class="diagnosis">
+          <p class="dx-crop"><em id="dx-latin"></em><span id="dx-crop"></span></p>
+          <h2 class="dx-name" id="dx-name"></h2>
+          <p class="dx-pathogen" id="dx-pathogen"></p>
+          <div class="meter" aria-hidden="true"><span id="dx-bar"></span></div>
+          <p class="meter-text" id="dx-conf"></p>
+          <div id="dx-alt"></div>
+          <ul class="warnings" id="dx-warnings"></ul>
+          <dl class="facts">
+            <dt>What it looks like</dt><dd id="dx-symptoms"></dd>
+            <dt>Spreads fastest in</dt><dd id="dx-favoured"></dd>
+          </dl>
+        </div>
+      </aside>
+
+      <div class="outlook">
+        <div class="verdict" id="verdict">
+          <h2 id="verdict-title"></h2>
+          <p id="verdict-sub"></p>
+        </div>
+
+        <div class="curve" id="curve-block">
+          <div class="legend" id="legend">
+            <span class="key key-none">No treatment</span>
+            <span class="key key-today" data-treat>Spray today</span>
+            <span class="key key-delay" data-treat id="key-delay">Spray in 3 days</span>
+            <span class="key key-limit">Damage limit</span>
+          </div>
+          <div class="chart-box"><canvas id="chart" role="img" aria-label="Forecast of healthy leaf area over the next two weeks"></canvas></div>
+          <p class="hint" id="chart-fallback" hidden>The chart library didn’t load (no internet). The numbers below still apply.</p>
+          <label class="slider delay" data-treat>
+            <span>What if I wait</span>
+            <input type="range" id="delay" min="0" max="10" value="3">
+            <output id="delay-out">3 days</output>
+          </label>
+          <p class="readout" id="readout"></p>
+        </div>
+
+        <section class="block" id="treat-block">
+          <h3>What to spray</h3>
+          <div id="rec-body"></div>
+        </section>
+
+        <section class="block">
+          <h3>Also do this</h3>
+          <p id="care"></p>
+        </section>
+
+        <section class="block">
+          <h3>Weather we used</h3>
+          <div>
+            <p class="hint" id="weather-meta"></p>
+            <div class="table-scroll"><table class="days" id="days"></table></div>
+          </div>
+        </section>
+
+        <div class="again">
+          <button type="button" class="btn btn-outline" id="again">Check another leaf</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -------------------------------------------------------- -->
+    <section class="how" id="how" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <ol class="steps">
+        <li>
+          <h3>It names the problem</h3>
+          <p>A neural network trained on about 70,000 leaf photos identifies the crop and the condition, and tells you how sure it is. When it isn’t sure, it shows its second guess.</p>
+        </li>
+        <li>
+          <h3>It reads your weather</h3>
+          <p>We fetch the next five days of temperature, humidity and rain for your location. Each disease spreads differently, so the same forecast can mean “act now” for one and “wait” for another.</p>
+        </li>
+        <li>
+          <h3>It shows the day that matters</h3>
+          <p>You see your crop’s health over two weeks with and without treatment, the last good day to spray, and a product matched to the disease.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="crops" id="crops" aria-labelledby="crops-title">
+      <div class="crops-head">
+        <h2 id="crops-title">What it recognises</h2>
+        <p>Conditions marked <span class="has-forecast-sample">like this</span> also get a weather-based spread forecast.</p>
+      </div>
+      <div class="crop-list" id="crop-list"></div>
+    </section>
+  </main>
+
+    <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <p class="footer-mark">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26C6 13 15 6 27 5c-1 12-8 21-21 21z"/><path class="vein" d="M7 25L21 11"/></svg>
+          CropCurve
+        </p>
+        <p class="footer-tagline">See the disease before it sees your harvest.</p>
+      </div>
+
+      <figure class="team-label" aria-label="The team behind CropCurve">
+        <span class="team-tape" aria-hidden="true"></span>
+        <figcaption class="team-label-head">
+          <span class="team-label-title">Grown by team SpotItFirst</span>
+          <span class="team-label-meta">2026</span>
+        </figcaption>
+        <ul class="team-names">
+          <li>Sai Siddarth</li>
+          <li>Samarth Anil</li>
+          <li>Sai Gowrav</li>
+          <li>Sumedh Mulay</li>
+        </ul>
+        <p class="team-label-foot">Smart Crop Disease Prediction and Management</p>
+      </figure>
+    </div>
+
+    <p class="footer-note">Forecasts are estimates from a simple model and weather data. Check with your local agriculture officer before spraying, and always follow the product label.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script>window.Chart || document.write('<script src="vendor/chart.umd.min.js"><\/script>')</script>
+  <script src="app.js"></script>
+</body>
+</html>
