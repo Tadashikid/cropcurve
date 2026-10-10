@@ -469,6 +469,24 @@
       row("Rain", (d) => (d.rain_mm > 0 ? `${d.rain_mm} mm` : "–")) + "</tbody>";
   }
 
+  // Phone menu: open/close the sprout menu.
+  const navToggle = document.querySelector(".nav-toggle");
+  const siteNav = document.getElementById("site-nav");
+  if (navToggle && siteNav) {
+    const setMenu = (open) => {
+      siteNav.classList.toggle("open", open);
+      navToggle.setAttribute("aria-expanded", String(open));
+      navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      navToggle.querySelector(".nav-toggle-label").textContent = open ? "Close" : "Menu";
+    };
+    navToggle.addEventListener("click", () => setMenu(!siteNav.classList.contains("open")));
+    siteNav.addEventListener("click", (e) => { if (e.target.closest("a")) setMenu(false); });
+    document.addEventListener("click", (e) => { if (!e.target.closest(".masthead")) setMenu(false); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && siteNav.classList.contains("open")) { setMenu(false); navToggle.focus(); }
+    });
+  }
+
   syncSliders();
   init();
 })();

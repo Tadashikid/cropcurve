@@ -12,12 +12,20 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="masthead">
+    <header class="masthead">
     <a class="wordmark" href="/" aria-label="CropCurve home">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26C6 13 15 6 27 5c-1 12-8 21-21 21z"/><path class="vein" d="M7 25L21 11"/></svg>
       CropCurve
     </a>
-    <nav class="nav" aria-label="Page sections">
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path class="sprout-stem" d="M16 29V15"/>
+        <path class="sprout-leaf sprout-leaf-l" d="M16 16C10 16 6.5 12 6 6c6 .5 10 4 10 10z"/>
+        <path class="sprout-leaf sprout-leaf-r" d="M16 16c6 0 9.5-4 10-10-6 .5-10 4-10 10z"/>
+      </svg>
+      <span class="nav-toggle-label">Menu</span>
+    </button>
+    <nav class="nav" id="site-nav" aria-label="Page sections">
       <a href="#how">How it works</a>
       <a href="#crops">What it recognises</a>
       <a href="#contact">Contact</a>
