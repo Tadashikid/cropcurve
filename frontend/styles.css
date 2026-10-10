@@ -58,8 +58,17 @@ img { max-width: 100%; display: block; }
 .wordmark svg { width: 1.4rem; height: 1.4rem; fill: var(--moss); }
 .wordmark .vein { stroke: var(--paper); stroke-width: 1.5; fill: none; }
 .nav { display: flex; gap: 1.75rem; }
-.nav a { color: var(--ink-soft); text-decoration: none; font-size: .95rem; }
-.nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.nav a {
+  color: var(--ink-soft); text-decoration: none; padding-bottom: 3px;
+  background: linear-gradient(var(--moss), var(--moss)) right bottom / 0% 1px no-repeat;
+  transition: background-size .5s cubic-bezier(.22, .61, .36, 1), color .35s ease;
+}
+.nav a:hover,
+.nav a:focus-visible {
+  color: var(--ink);
+  background-position: left bottom;
+  background-size: 100% 1px;
+}
 
 .demo-note {
   max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter);
@@ -376,4 +385,19 @@ img { max-width: 100%; display: block; }
 @media (max-width: 420px) {
   .team-names { grid-template-columns: 1fr; }
   .team-label { padding: 1.4rem 1.3rem 1.1rem; }
+}
+
+.footer-contact a {
+  display: inline-block; margin-left: .35rem; padding-bottom: 3px;
+  color: #e8e3d4; text-decoration: none;
+  background:
+    linear-gradient(var(--paper-hi), var(--paper-hi)) right bottom / 0% 1px no-repeat,
+    linear-gradient(var(--ochre), var(--ochre)) left bottom / 100% 1px no-repeat;
+  transition: background-size .5s cubic-bezier(.22, .61, .36, 1), color .35s ease;
+}
+.footer-contact a:hover,
+.footer-contact a:focus-visible {
+  color: var(--paper-hi);
+  background-position: left bottom, left bottom;
+  background-size: 100% 1px, 100% 1px;
 }
