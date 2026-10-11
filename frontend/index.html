@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="legal.css">
 </head>
 <body>
     <header class="masthead">
@@ -204,6 +205,7 @@
             <p class="hint" id="weather-meta"></p>
             <div class="table-scroll"><table class="days" id="days"></table></div>
           </div>
+           <p class="hint">Weather data © <a href="https://openweathermap.org/" rel="noopener">OpenWeather</a></p>
         </section>
 
         <div class="again">
@@ -272,8 +274,15 @@
       </figure>
     </div>
 
-    <p class="footer-note">Forecasts are estimates from a simple model and weather data. Check with your local agriculture officer before spraying, and always follow the product label.</p>
-  </footer>
+       <div class="footer-bottom">
+      <p class="footer-note">Forecasts are estimates from a simple model and weather data. Check with your local agriculture officer before spraying, and always follow the product label.</p>
+      <nav class="footer-legal" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/credits/">Credits &amp; licences</a>
+      </nav>
+    </div>
+   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script>window.Chart || document.write('<script src="vendor/chart.umd.min.js"><\/script>')</script>
